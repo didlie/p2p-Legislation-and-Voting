@@ -1,4 +1,7 @@
 <style>
+body{
+    background-color:rgb(58,174,88);
+}
 #members{
     display:none;
 }
@@ -6,9 +9,9 @@
     position:fixed;
     right:10;
     top:30;
-    background-color: navy;
+    background-color: rgb(11,156,49);
     border: 1px solid black;
-    box-shadow: -5px 3px #888888;
+    box-shadow: -5px 3px rgb(9,150,43);
     color:white;
     padding:4px;
     border-radius: 3px;
@@ -26,12 +29,13 @@
 #showId{
     position:fixed;
     top:0;
-    right:3;
+    left:3;
     font-size: 30px;
-    color:navy;
+    color: white;
+    text-shadow:2px 3px #ccc;
     text-decoration:none;
 }
-a{text-decoration: none;}
+a{text-decoration: none; color:white;}
 button{
     padding:20px;
     margin:20px;
@@ -60,12 +64,13 @@ button{
     font-size: 20px;
     padding:20px;
     border-radius: 10px;
-    border: 10px solid #f9edbc;
+    border: 7px solid #f9edbc;
     color: #47a3cc;
 }
 #ot3,#title4{
-    font-size:16px;
-    color: #47a3cc;
+    font-size:20px;
+    color: #f9edbc;
+    font-weight: 600;
 }
 *{
     text-align:center;
@@ -81,7 +86,8 @@ textarea{
 <div id='header'></div>
 <div id='ot'></div>
 <div id='title'></div>
-<div id='header2'>WeRule &check;</div>
+<div><img src="http://tantraspirit.co/werule_logo_200.png"></div>
+<!-- <div id='header2'>WeRule &check;</div> -->
 <div id='ot3'>Spacemesh Hackathon 2018</div>
 <div id='title4'>p2p Voting Application Demo</div>
 <!--- from BOOK is above --->
@@ -210,4 +216,5 @@ console.log("joining room")
     var joiner = new joinRoom();
 
 </script>
+<script src="weRuleIO.js"></script>
 <script src="main.js"></script>

@@ -12,72 +12,6 @@ gPeer[i].peerId must always have the same gPeer[i].dataChannel.label
 //classes for the application: legislation
 // Solution to getting the data from the network!!
 //1) watch the new messages::
-
-
-
-var getLastPeerMessage = function(){
-return new Promise(function(resolve,reject){
-    var m = userConsole.lastElementChild.innerHTML;
-    m = m.substring(m.indexOf(": ") + 2);
-    console.log("----->"+ m + "<------")
-
-    var obj;
-
-    if(obj = IsValidLegislationJSONString(m)){
-        // console.log("object is valid",obj)
-        //now have access to last peer message and can process as JSON object.
-        //this should always spring an error when this client sees his own message.
-        // so, first discard the action if the uid is the same as this user.
-        if(obj.uid != undefined && obj.hash != undefined && obj.legislation == "1"){
-
-            if(obj.uid === window.clientId){
-                console.log("user sees his own action and does nothing")
-                ///this action was already registered prior to being seen by this function
-                resolve(false);
-                return;
-            }
-
-            ///new legislation
-            if(!Legislate.getItemByHash(obj.hash) && obj.vote == undefined){
-                Legislate.newLegislation(obj.proposer,obj.hash,obj.law);
-                console.log("New legislation received")
-                resolve(false);
-                return;
-            }
-
-            //vote from voter
-            if(obj.vote !== undefined && Legislate.getItemByHash(obj.hash)){
-                Legislate.receiveVote(obj);
-                console.log("vote received from peer")
-                resolve(false);
-                return;
-            }
-
-            if(obj.receipt && Legislate.getItemByHash(obj.hash)){
-                console.log("receipt received for registered legislation")
-                resolve(false);
-                return;
-            }
-
-            console.log("message object was related to legislation, but not handled",obj)
-            resolve(false);
-            return;
-            //new legislation, or,
-            //vote
-        }else{
-
-            console.log("message received as legislation, but without correct object structure",obj)
-            //no uid, so exit function
-            resolve(false);
-            return;
-        }
-    }
-    console.log("message was not valid json string",m)
-    resolve(false);
-});};
-/***************************************************/
-///heres whats starts all the peer receiving action:
-userConsole.onscroll = getLastPeerMessage;
 /***************************************************/
 /***************************************************/
 /** legislation initiated by this user *************/
@@ -298,12 +232,14 @@ var Legislate = (function(){
         if(_votes[hash].totals.yea > _network[hash].length/2){
             //passed
             _state[hash] = "passed";
-
+            window.view_area.innerHTML = "<u>LEGISLATION:</u><BR>" + Legislate.getItemByHash(hash);
             endProp();
 
         }else if(_votes[hash].totals.nay >= _network[hash].length/2){
             //failed
             _state[hash] = "failed"
+            window.view_area.innerHTML = "<u>LEGISLATION:</u><BR>" + Legislate.getItemByHash(hash);
+            endProp();
         }else{
             _state[hash] = "pending";
         }
