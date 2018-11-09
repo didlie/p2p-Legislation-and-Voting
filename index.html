@@ -1,0 +1,213 @@
+<style>
+#members{
+    display:none;
+}
+#connections{
+    position:fixed;
+    right:10;
+    top:30;
+    background-color: navy;
+    border: 1px solid black;
+    box-shadow: -5px 3px #888888;
+    color:white;
+    padding:4px;
+    border-radius: 3px;
+}
+#connections>h5{
+    border-radius: 3px;
+    padding:3px;
+    background-color: black;
+}
+.well{
+    position:absolute;
+    top:-1000;
+    right:-1000;
+}
+#showId{
+    position:fixed;
+    top:0;
+    right:3;
+    font-size: 30px;
+    color:navy;
+    text-decoration:none;
+}
+a{text-decoration: none;}
+button{
+    padding:20px;
+    margin:20px;
+}
+button#yea,button#nay{
+    display:inline-block;
+}
+.left,#view-area{
+    float:left;
+    width:50%;
+}
+.right,#view-area2{
+    float:right;
+    width:50%;
+}
+div{
+    font-family:monospace;
+}
+button{
+    display:inline-block;
+}
+#header2{
+    margin-left:auto;
+    margin-right:auto;
+    width:100px;;
+    font-size: 20px;
+    padding:20px;
+    border-radius: 10px;
+    border: 10px solid #f9edbc;
+    color: #47a3cc;
+}
+#ot3,#title4{
+    font-size:16px;
+    color: #47a3cc;
+}
+*{
+    text-align:center;
+}
+textarea{
+    font-family:ariel;
+    font-size: 20px;
+    margin:20px;
+    border:10px dashed rgba(0,0,0,0.72);
+}
+</style>
+<!--- below some blocks from BOOK --->
+<div id='header'></div>
+<div id='ot'></div>
+<div id='title'></div>
+<div id='header2'>WeRule &check;</div>
+<div id='ot3'>Spacemesh Hackathon 2018</div>
+<div id='title4'>p2p Voting Application Demo</div>
+<!--- from BOOK is above --->
+<div id='log'></div>
+<div id='io-form'>
+    <div style="width:100%;">
+        <div class='left'>
+            <textarea id='proposition' style="height:300px;width:300px"></textarea><br>
+            <button id='submit-prop'>Submit Legislation</button>
+            <!-- <button id='view-prop'>View Legislation</button> -->
+        </div>
+        <div id='view-area2'></div>
+        <div id='view-area3'></div>
+    </div>
+    <div style="width:100%;">
+        <div id='view-area'></div>
+    </div>
+</div>
+
+<!-- now the book HTML --->
+<div class="span12">
+  <fieldset class="well">
+      <div id='stopChat' style='display:none'>***</div>
+    <p class="head muted">
+      <h1>Network ID:&nbsp;<span id='showId' style="color:blue;text-decoration:underline;"></span></h1>
+      <!-- <div id='nameDiv'><input id='userId' type='txt' maxlength="6" style="width:84px;"><button id="chngId">Change Your Name</button></div> -->
+    </p>
+    <p>
+    <div style="float:left; width:90%">
+        <div class="text-info" id="console" style="height:50px; width:50%; overflow:scroll;"></div>
+    </div>
+    <div style="float:right; width:10%;">
+        <div id="members" width="100%"><h5>Friends</h5></div>
+        <div id="connections" width="100%"><h5>Connections</h5></div>
+    </div>
+    <div id='mssgForm'>
+        <input type='text' id='messageInput' maxlength='200'>
+        <button id='msgBtn'>Send Message</button>
+    </div>
+  </fieldset>
+      <!-- <button type="submit" id="joinChat" class="btn">Join Chat</button> -->
+      <script>
+    //  document.getElementById("joinChat").addEventListener("click",function(){joinRoom()});
+      </script>
+</div>
+<!-- <script src="localStorage.js"></script> -->
+<script>
+    var prop_button = document.getElementById('submit-prop');
+    var prop = document.getElementById("proposition");
+    // var view_button = document.getElementById("view-prop");
+    var view_area = document.getElementById("view-area");
+    var view_area2 = document.getElementById("view-area2");
+    var view_area3 = document.getElementById("view-area3");
+    var yea = document.createElement("button");
+    var nay = document.createElement("button");
+    // var lastHash;
+
+    prop_button.onclick = function(){
+        var p = prop.value;
+        window.proposition(p);
+    };
+</script>
+    <script src="classes/dClient.js"></script>
+    <script src="classes/Peer.js"></script>
+    <script src="classes/Mirror.js"></script>
+    <script src="classes/joinRoom.js"></script>
+    <script src="classes/IO.js"></script>
+    <script src="classes/IO.relay.js"></script>
+    <script src="classes/IO.switch.js"></script>
+    <script src="classes/IO.cue.js"></script>
+    <script src="classes/IO.cache.js"></script>
+    <script src="classes/IO.connectRequest.js"></script>
+<script>
+    var autostart = true;
+    //ISSUES:
+    //THIRD PEER DOESN'T GET OTHER PEER INI MESSAGE IF CONNECTED OUT OF TIME
+    //
+    //if no name, name is id, or name is name
+    var connections = document.getElementById("connections");
+    var members = document.getElementById("members");
+    // var nameDiv = document.getElementById('nameDiv');
+    // var userId = document.getElementById("userId");
+    var showId = document.getElementById("showId");
+    // var chngId = document.getElementById("chngId");
+    var titleDiv = document.getElementById("title");
+    var otDiv = document.getElementById("ot");
+    var pageHead = document.getElementById("header");
+    var stopChatButton = document.getElementById("stopChat");
+    var messageInput = document.getElementById('messageInput');
+    var msgBtn = document.getElementById('msgBtn');
+    var mssgForm = document.getElementById('mssgForm');
+    var userConsole = document.getElementById("console");
+    var maker = new Peer();
+    var taker = new Peer();
+    var _file_ = "mirror.php";
+    var gPeer = [];//migrate gPeer handling to dClient
+    var clientId = IO.newUid();
+    var clientName = clientId;
+    showId.innerHTML = clientId;
+    //add event listeners
+    messageInput.onkeyup = function(e){
+        if(e.target.value != ''){
+            if(e.keyCode === 13){
+                msgBtn.click();
+                setTimeout(function(){ e.target.value = '';},1)
+            }
+        }
+    }
+
+    window.msgBtn.addEventListener('click',function(){ IO.doSay() });
+    // window.chngId.addEventListener("click",IO.updateUserNameDisplay);
+    // chngId.addEventListener("click",function(){
+    //     var _uid = IO.nameFilter(userId.value.trim());
+    //     if(!_uid) return false;
+    //     window.clientName = _uid;
+    //     if(name.length > 0){
+    //         IO.showUserId(_uid);
+    //         userId.disabled = true;
+    //         userId.style.display = "none";
+    //         chngId.style.display = "none";
+    //     }
+    // });
+
+
+console.log("joining room")
+    var joiner = new joinRoom();
+
+</script>
+<script src="main.js"></script>
